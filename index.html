@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Forum StudyWithMe</title>
+    <script>
+      try {
+        const originalFetch = window.fetch;
+        Object.defineProperty(window, 'fetch', {
+          get: () => originalFetch,
+          set: (val) => {
+            console.warn('Ignored attempt to overwrite window.fetch');
+          },
+          configurable: true
+        });
+      } catch (e) {
+        console.warn('Could not define window.fetch setter', e);
+      }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@400;600;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      /* Custom scrollbar */
+      ::-webkit-scrollbar { width: 8px; height: 4px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: #90cdf4; border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: #63b3ed; }
+      
+      body { font-family: 'Be Vietnam Pro', sans-serif; }
+      .font-header { font-family: 'Nunito', sans-serif; }
+      .font-bungee { font-family: 'Bungee', cursive; }
+
+      /* UTILITIES MOVED FROM APP.TSX */
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+      /* ANIMATIONS MOVED FROM APP.TSX */
+      @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      .animate-fade-in-down { animation: fadeInDown 0.6s ease-out; }
+      .animate-fade-in-up { animation: fadeInUp 0.3s ease-out; }
+      .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+
+      /* --- OCEAN BACKGROUND ASSETS --- */
+      .pixel-dolphin-base { position: absolute; width: 8px; height: 8px; background: transparent; color: #95a5a6; opacity: 1; box-shadow: 8px 0, 16px 0, 24px 0, 32px 0, 40px 0, 0px 8px, 8px 8px, 16px 8px, 24px 8px, 32px 8px, 40px 8px, 48px 8px, 8px 16px #bdc3c7, 16px 16px #bdc3c7, 24px 16px #bdc3c7, 32px 16px #bdc3c7, 40px 16px #bdc3c7, 24px -8px #7f8c8d, 32px -8px #7f8c8d, 16px 16px #7f8c8d, 16px 24px #7f8c8d, 56px 8px, 64px 0, 64px 16px; }
+      .pixel-whale { position: absolute; width: 10px; height: 10px; background: transparent; color: #34495e; box-shadow: 20px 0, 30px 0, 40px 0, 50px 0, 60px 0, 70px 0, 10px 10px, 20px 10px, 30px 10px, 40px 10px, 50px 10px, 60px 10px, 70px 10px, 80px 10px, 0px 20px, 10px 20px, 20px 20px, 30px 20px, 40px 20px, 50px 20px, 60px 20px, 70px 20px, 80px 20px, 90px 20px, 10px 30px #ecf0f1, 20px 30px #ecf0f1, 30px 30px #ecf0f1, 40px 30px #ecf0f1, 50px 30px #ecf0f1, 60px 30px #ecf0f1, 70px 30px #ecf0f1, 100px 10px, 110px 0, 110px 20px; }
+      .pixel-starfish { position: absolute; width: 5px; height: 5px; background: transparent; color: #e74c3c; box-shadow: 10px 0, 5px 5px, 10px 5px, 15px 5px, 0px 10px, 5px 10px, 10px 10px, 15px 10px, 20px 10px, 5px 15px, 15px 15px, 0px 20px, 20px 20px; animation: rotateStar 8s linear infinite; }
+      @keyframes rotateStar { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      
+      .swim-left { animation: swimLeft linear infinite; transform: scale(3); } 
+      .swim-left-whale { animation: swimLeft linear infinite; transform: scale(4); }
+      .swim-right { animation: swimRight linear infinite; } 
+      .swim-right-whale { animation: swimRightWhale linear infinite; }
+      
+      @keyframes swimLeft { from { left: 110%; } to { left: -30%; } }
+      @keyframes swimRight { from { left: -30%; transform: scaleX(-1) scaleY(1) scale(3); } to { left: 110%; transform: scaleX(-1) scaleY(1) scale(3); } }
+      @keyframes swimRightWhale { from { left: -30%; transform: scaleX(-1) scaleY(1) scale(4); } to { left: 110%; transform: scaleX(-1) scaleY(1) scale(4); } }
+      
+      .tiny-bubble { position: absolute; width: 3px; height: 3px; background: rgba(255,255,255,0.6); animation: bubbleRise linear infinite; }
+      @keyframes bubbleRise { from { bottom: -10px; } to { bottom: 110%; } }
+
+      /* --- FRAME STYLES (Pure CSS) - Improved Alignment --- */
+      /* Base class for the image inside the frame */
+      .frame-content { 
+        border-radius: 50%; 
+        width: 100%; 
+        height: 100%; 
+        object-fit: cover; 
+        position: relative; 
+        z-index: 10; 
+      }
+
+      /* Note: Frames are now applied to a div *overlaying* the image, typically with inset: -4px */
+      /* All frames need pointer-events-none to let clicks pass through to profile */
+
+      /* F1: Ice */
+      .frame-ice { position: absolute; inset: -4px; border-radius: 50%; z-index: 20; pointer-events: none; border: 4px solid #a5f3fc; box-shadow: 0 0 10px #22d3ee, inset 0 0 6px #22d3ee; animation: pulse-ice 3s infinite; }
+      @keyframes pulse-ice { 0%, 100% { box-shadow: 0 0 10px #22d3ee; } 50% { box-shadow: 0 0 16px #67e8f9; } }
+
+      /* F2: Fire */
+      .frame-fire { position: absolute; inset: -4px; border-radius: 50%; z-index: 20; pointer-events: none; border: 3px solid #fca5a5; border-top-color: #ef4444; border-bottom-color: #f87171; box-shadow: 0 0 10px #ef4444; animation: spin-fire 4s linear infinite; }
+      @keyframes spin-fire { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+      /* F3: Tech */
+      .frame-tech { position: absolute; inset: -4px; border-radius: 50%; z-index: 20; pointer-events: none; border: 2px dashed #6366f1; box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); animation: spin-tech 10s linear infinite; }
+      .frame-tech::after { content: ''; position: absolute; inset: -3px; border-radius: 50%; border: 1px solid transparent; border-top-color: #818cf8; border-bottom-color: #818cf8; animation: spin-tech-reverse 5s linear infinite; }
+      @keyframes spin-tech { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      @keyframes spin-tech-reverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+
+      /* F4: Nature */
+      .frame-nature { position: absolute; inset: -3px; border-radius: 50%; z-index: 20; pointer-events: none; border: 3px solid #34d399; box-shadow: 0 3px 0 #059669; }
+      .frame-nature::before { content: '🌿'; position: absolute; bottom: -6px; right: -6px; font-size: 14px; animation: bounce-slow 3s infinite; }
+
+      /* F5: Gold */
+      .frame-gold { position: absolute; inset: -4px; border-radius: 50%; z-index: 20; pointer-events: none; border: 4px double #facc15; box-shadow: 0 0 10px rgba(250, 204, 21, 0.6); }
+
+      /* F6: Neon Cyber */
+      .frame-neon { position: absolute; inset: -3px; border-radius: 50%; z-index: 20; pointer-events: none; border: 2px solid #d946ef; border-left-color: #06b6d4; box-shadow: 0 0 8px #d946ef, 0 0 8px #06b6d4; animation: spin-neon 2s linear infinite; }
+      @keyframes spin-neon { 0% { transform: rotate(0deg); filter: hue-rotate(0deg); } 100% { transform: rotate(360deg); filter: hue-rotate(360deg); } }
+
+      /* F7: Galaxy */
+      .frame-galaxy { position: absolute; inset: -4px; border-radius: 50%; z-index: 20; pointer-events: none; background: conic-gradient(from 0deg, #4c1d95, #c026d3, #4c1d95); padding: 2px; -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: spin-slow 10s linear infinite; }
+      .frame-galaxy::before { content: '✨'; position: absolute; top: -2px; left: 50%; font-size: 8px; animation: twinkle 1s infinite; }
+      
+      /* F8: Pixel Art */
+      .frame-pixel { position: absolute; inset: -4px; z-index: 20; pointer-events: none; box-shadow: 2px 0 0 #000, -2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000, 4px 0 0 #000, -4px 0 0 #000, 0 -4px 0 #000, 0 4px 0 #000, 0 0 0 3px #fff; border-radius: 12%; }
+
+      /* F9: Sakura */
+      .frame-sakura { position: absolute; inset: -3px; border-radius: 50%; z-index: 20; pointer-events: none; border: 3px solid #fbcfe8; box-shadow: 0 0 6px #f472b6; }
+      .frame-sakura::after { content: '🌸'; position: absolute; top: -6px; right: -4px; font-size: 10px; animation: spin-slow 8s infinite; }
+      .frame-sakura::before { content: '🌸'; position: absolute; bottom: -4px; left: -4px; font-size: 8px; animation: spin-reverse 8s infinite; }
+
+      /* F10: Royal */
+      .frame-royal { position: absolute; inset: -3px; border-radius: 50%; z-index: 20; pointer-events: none; border: 3px solid #eab308; box-shadow: 0 0 0 1px #713f12 inset; }
+      .frame-royal::before { content: '👑'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%) rotate(-5deg); font-size: 14px; filter: drop-shadow(0 2px 1px rgba(0,0,0,0.3)); }
+
+      /* F11: Conqueror (Thách Đấu) */
+      .frame-conqueror { position: absolute; inset: -4px; border-radius: 50%; z-index: 20; pointer-events: none; border: 4px solid transparent; background: linear-gradient(135deg, #ef4444, #f59e0b, #ef4444) border-box; -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; box-shadow: 0 0 15px #ef4444, inset 0 0 10px #f59e0b; animation: pulse-conqueror 2s infinite alternate; }
+      .frame-conqueror::before { content: '⚡'; position: absolute; top: -5px; right: 0; font-size: 14px; animation: flash-lightning 1.5s infinite; filter: drop-shadow(0 0 5px #facc15); }
+      .frame-conqueror::after { content: '⚔️'; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); font-size: 16px; filter: drop-shadow(0 0 8px #ef4444); }
+      @keyframes pulse-conqueror { 0% { box-shadow: 0 0 15px #ef4444; filter: brightness(1); } 100% { box-shadow: 0 0 25px #dc2626, 0 0 15px #fcd34d inset; filter: brightness(1.3); } }
+      @keyframes flash-lightning { 0%, 90%, 100% { opacity: 0; } 92%, 98% { opacity: 1; transform: scale(1.5); } 95% { opacity: 0; } }
+
+      /* F12: Grand Conqueror (Chiến Tướng) */
+      .frame-grand-conqueror { position: absolute; inset: -5px; border-radius: 50%; z-index: 20; pointer-events: none; border: 4px solid transparent; background: linear-gradient(45deg, #7e22ce, #db2777, #7e22ce) border-box; -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; box-shadow: 0 0 20px #db2777; animation: spin-grand 3s linear infinite; }
+      .frame-grand-conqueror::before { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 2px dashed #f472b6; animation: spin-reverse 4s linear infinite; opacity: 0.8; }
+      @keyframes spin-grand { 100% { transform: rotate(360deg); } }
+
+      /* F13: Master (Cao Thủ) */
+      .frame-master { position: absolute; inset: -4px; border-radius: 50%; z-index: 20; pointer-events: none; border: 3px solid #8b5cf6; box-shadow: 0 0 12px #8b5cf6, 0 0 20px #c084fc inset; animation: breathe-master 3s ease-in-out infinite; }
+      .frame-master::before, .frame-master::after { content: '♦'; position: absolute; color: #d8b4fe; font-size: 18px; text-shadow: 0 0 8px #c084fc; animation: float-diamond 2s ease-in-out infinite alternate; }
+      .frame-master::before { top: -8px; left: 10%; }
+      .frame-master::after { bottom: -8px; right: 10%; animation-delay: 1s; }
+      @keyframes breathe-master { 0%, 100% { transform: scale(1); border-color: #8b5cf6; box-shadow: 0 0 12px #8b5cf6; } 50% { transform: scale(1.05); border-color: #c084fc; box-shadow: 0 0 25px #c084fc; } }
+      @keyframes float-diamond { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(-5px) rotate(180deg); filter: hue-rotate(45deg); } }
+
+      /* F14: Veteran (Tinh Anh) */
+      .frame-veteran { position: absolute; inset: -4px; border-radius: 50%; z-index: 20; pointer-events: none; border: 4px solid transparent; background: linear-gradient(0deg, #b91c1c, #fca5a5, #b91c1c) border-box; -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; box-shadow: 0 0 15px #dc2626; animation: rotate-veteran 4s linear infinite; }
+      .frame-veteran::after { content: ''; position: absolute; inset: -2px; border-radius: 50%; border: 1px solid rgba(252, 165, 165, 0.5); animation: pulse-inner-veteran 1s infinite alternate; }
+      @keyframes rotate-veteran { 100% { transform: rotate(360deg); } }
+      @keyframes pulse-inner-veteran { 0% { transform: scale(0.95); opacity: 0.5; } 100% { transform: scale(1.05); opacity: 1; border-color: #fef2f2; } }
+
+      /* F15: Diamond (Kim Cương) */
+      .frame-diamond { position: absolute; inset: -4px; border-radius: 50%; z-index: 20; pointer-events: none; border: 4px solid transparent; background: linear-gradient(135deg, #60a5fa, #bfdbfe, #3b82f6, #93c5fd) border-box; -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; box-shadow: 0 0 15px #60a5fa; animation: spin-slow 5s linear infinite; }
+      .frame-diamond::before { content: ''; position: absolute; inset: -6px; border-radius: 50%; background: conic-gradient(from 0deg, transparent, rgba(147, 197, 253, 0.8), transparent 40%); animation: radar-spin 2s linear infinite; -webkit-mask: radial-gradient(transparent 65%, black 66%); mask: radial-gradient(transparent 65%, black 66%); }
+      @keyframes radar-spin { 100% { transform: rotate(360deg); } }
+
+      /* Global Animations */
+      @keyframes snowFall { 0% { transform: translateY(-10vh) translateX(0); opacity: 1; } 100% { transform: translateY(110vh) translateX(20px); opacity: 0; } }
+      @keyframes cityScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+      
+      .animate-pop-in { animation: pop-in 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+      @keyframes pop-in { 0% { transform: scale(0); opacity: 0; } 80% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+      @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      @keyframes spin-reverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+      @keyframes bounce-slow { 0%, 100% { transform: translateY(-3px); } 50% { transform: translateY(3px); } }
+      @keyframes twinkle { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.5); } }
+
+      .animate-spin-slow { animation: spin-slow 10s linear infinite; }
+      
+      /* TAG STYLES */
+      .tag-badge {
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-flex;
+        align-items: center;
+      }
+      .tag-qa { background-color: #FEF3C7; color: #D97706; border: 1px solid #FCD34D; }
+      .tag-discuss { background-color: #E0E7FF; color: #4F46E5; border: 1px solid #C7D2FE; }
+      .tag-share { background-color: #D1FAE5; color: #059669; border: 1px solid #6EE7B7; }
+      .tag-doc { background-color: #FCE7F3; color: #DB2777; border: 1px solid #FBCFE8; }
+      .tag-chill { background-color: #E0F2FE; color: #0284C7; border: 1px solid #BAE6FD; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

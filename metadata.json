@@ -1,0 +1,11 @@
+{
+  "name": "PixelSky Forum",
+  "description": "Một diễn đàn sáng tạo với giao diện đám mây pixel, hỗ trợ đăng ảnh, ghi âm và tích hợp AI.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
